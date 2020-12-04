@@ -1,0 +1,11 @@
+__pycache__
+
+AeroPy
+
+.vscode
+
+src/temp
+
+src/xplot11_logfile
+
+.DS_Store
