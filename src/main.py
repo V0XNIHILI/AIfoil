@@ -25,17 +25,17 @@ from utils.get_random_string import get_random_string
 
 # Code --------------------------------------------------------------------------------------------
 
-re = 20*1000*1000
-angles = [5]
+re = 1000*1000
+angles = [0]
 
-npop = 50
+npop = 30
 
-max_iter = 50
+max_iter = 30
 
-non_converging_cd_cl = 0.001
+non_converging_cd_cl = -1/71
 
 std = 0.5  # noise standard deviation
-alpha = 0.03  # learning rate
+alpha = 0.1  # learning rate
 
 bad = []
 
@@ -58,7 +58,7 @@ def calc_cd_over_cl(x):
 
     write_airfoil(airfoil_name, airfoil_coordinates)
 
-    calc_polar(airfoil_name, re, out_file, angles, [], True, 10, 200)
+    calc_polar(airfoil_name, re, out_file, angles, [], True, 50, 200)
 
     polar = read_polar(out_file)
 
@@ -80,8 +80,7 @@ def fun(x):
     y = np.zeros(npop)
 
     for i in range(0, npop):
-        y[i] = -(1/calc_cd_over_cl(x_np[i]) - 70)**2
-        print(y[i])
+        y[i] = -(1/calc_cd_over_cl(x_np[i]) - 50)**2
 
     return torch.from_numpy(y)
 
@@ -90,7 +89,7 @@ mu = torch.tensor([0.1, 0.1, 1.0, 1.0, 1.0, 1.0], requires_grad=True)
 p = Normal(mu, std)
 
 for t in range(max_iter):
-    print('next iter')
+    print('Current iteration ' + str(t) + '/' + str(max_iter))
     sample = p.sample(npop)
     fitnesses = fun(sample)
     fitnesses = (fitnesses - fitnesses.mean()) / fitnesses.std()
@@ -101,7 +100,7 @@ for t in range(max_iter):
         mu += alpha * mu.grad
         mu.grad.zero_()
 
-    print('current fittness: ' + str(1/calc_cd_over_cl(mu.detach().numpy())))
+    print('Current fitness: ' + str(1/calc_cd_over_cl(mu.detach().numpy())))
     # print('step: {}, mean fitness: {:0.5}'.format(t, float(mu)))
 
 print('')
